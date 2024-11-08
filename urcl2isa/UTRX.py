@@ -129,7 +129,7 @@ class Translation():
   @staticmethod
   def readFile(filename: str):
     lines: list[str] = []
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding="utf-8") as f:
       for line in f:
         lines.append(line.rstrip("\n"))
     return lines

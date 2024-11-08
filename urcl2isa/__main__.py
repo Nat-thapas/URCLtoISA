@@ -107,7 +107,7 @@ def main():
         print("└"+f"─"*size+"┘")
 
     if argv.Output:
-        with open(argv.Output, "w+") as f:
+        with open(argv.Output, "w+", encoding="utf-8") as f:
             if ISAtranslations not in ["urcl/core.utrx", "urcl/basic.utrx", "urcl/complex.utrx"]:
                 for block in out:
                     f.write(block.toString() + "\n")
