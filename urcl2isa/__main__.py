@@ -51,7 +51,7 @@ def main():
 
     def translateISA(program: Program, trans: Translator):
         out: list[Block] = []
-        for i,ins in enumerate(program.code):
+        for i, ins in enumerate(program.code):
             sub: list[str] = trans.substitute(ins)
             if sub is None:
                 print(f"*** Warning: No translation for: {ins.toString()} ***")
@@ -65,7 +65,7 @@ def main():
         return out
 
     main.foldRegisters(minreg)
-    rmDW = (translatorISA.substitute(Instruction.parse("DW 0")) is None)
+    rmDW = translatorISA.substitute(Instruction.parse("DW 0")) is None
     if rmDW:
         main.removeDW()
     main.translate(translator, translatorISA, minreg)
@@ -80,35 +80,39 @@ def main():
     txtisa = f"{filename} translated to {ISAtranslations}"
     size = max(len(txturcl), len(txtisa))
     if not argv.Silent:
-        print("┌"+f"─"*size+"┐")
-        print("│"+ f"{txturcl:<{size}}" +"│")
-        print("└"+f"─"*size+"┘")
+        print("┌" + f"─" * size + "┐")
+        print("│" + f"{txturcl:<{size}}" + "│")
+        print("└" + f"─" * size + "┘")
         if argv.Boring:
             print(main.toString(indent=20))
         else:
             print(main.toColour(indent=20))
-        print("┌"+f"─"*size+"┐")
-        print("│"+f"{'@MINREG '+str(len(main.regs)):<{size}}│")
-        print("└"+f"─"*size+"┘")
+        print("┌" + f"─" * size + "┐")
+        print("│" + f"{'@MINREG '+str(len(main.regs)):<{size}}│")
+        print("└" + f"─" * size + "┘")
 
     start = timer()
     out = translateISA(main, translatorISA)
     end = timer()
 
     if not argv.Silent:
-        print("┌"+f"─"*size+"┐")
-        print("│"+ f"{txtisa:<{size}}" + "│")
-        print("└"+f"─"*size+"┘")
+        print("┌" + f"─" * size + "┐")
+        print("│" + f"{txtisa:<{size}}" + "│")
+        print("└" + f"─" * size + "┘")
         for block in out:
             block.print(indent=20)
-        print("┌"+f"─"*size+"┐")
+        print("┌" + f"─" * size + "┐")
         time = f"In {end-start:.10f} seconds."
-        print("│"+f"{time:<{size}}│")
-        print("└"+f"─"*size+"┘")
+        print("│" + f"{time:<{size}}│")
+        print("└" + f"─" * size + "┘")
 
     if argv.Output:
         with open(argv.Output, "w+", encoding="utf-8") as f:
-            if ISAtranslations not in ["urcl/core.utrx", "urcl/basic.utrx", "urcl/complex.utrx"]:
+            if ISAtranslations not in [
+                "urcl/core.utrx",
+                "urcl/basic.utrx",
+                "urcl/complex.utrx",
+            ]:
                 for block in out:
                     f.write(block.toString() + "\n")
             else:
@@ -116,6 +120,7 @@ def main():
                     lines = block.URCL_labels + block.code
                     for l in lines:
                         f.write(l + "\n")
+
 
 if __name__ == "__main__":
     main()

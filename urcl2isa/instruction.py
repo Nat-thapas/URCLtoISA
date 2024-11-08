@@ -1,16 +1,20 @@
 from operand import Operand
 from UTRX import Case
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from translator import Translation
 from colorama import Fore, Style
 import copy
 
-class Instruction():
+
+class Instruction:
     # ======== Static variables ========
     # There are none
 
-    def __init__(self, opcode="NOP", operands:list["Operand"]=[], labels:list[str]=[]):
+    def __init__(
+        self, opcode="NOP", operands: list["Operand"] = [], labels: list[str] = []
+    ):
         # A unique ID to differentiate instructions with identical attribute values
         self.opcode = opcode
         self.operands = operands
@@ -47,21 +51,32 @@ class Instruction():
             match = True
             opNum = -1
             infixes = ["==", "~~", "<>", "!=", "!~"]
-            for p,param in enumerate(case.params):
+            for p, param in enumerate(case.params):
                 if param in infixes:
                     op1 = self.operands[opNum]
                     op2 = self.operands[(opNum + 1) % len(self.operands)]
-                    if param == "==" and (op1.value != op2.value or  op1.type != op2.type) \
-                    or param == "!=" and (op1.value == op2.value and op1.type == op2.type) \
-                    or param == "~~" and (op1.type != op2.type) \
-                    or param == "!~" and (op1.type == op2.type):
+                    if (
+                        param == "=="
+                        and (op1.value != op2.value or op1.type != op2.type)
+                        or param == "!="
+                        and (op1.value == op2.value and op1.type == op2.type)
+                        or param == "~~"
+                        and (op1.type != op2.type)
+                        or param == "!~"
+                        and (op1.type == op2.type)
+                    ):
                         match = False
                         break
                     if param == "<>":
-                        if not (Case.match(op1, case.params[p-1]) and Case.match(op2, case.params[(p+1) % len(case.params)])):
-                            if (Case.match(op2, case.params[p-1]) and Case.match(op1, case.params[(p+1) % len(case.params)])):
+                        if not (
+                            Case.match(op1, case.params[p - 1])
+                            and Case.match(op2, case.params[(p + 1) % len(case.params)])
+                        ):
+                            if Case.match(op2, case.params[p - 1]) and Case.match(
+                                op1, case.params[(p + 1) % len(case.params)]
+                            ):
                                 self.operands[opNum] = op2
-                                self.operands[(opNum+1)%len(self.operands)] = op1
+                                self.operands[(opNum + 1) % len(self.operands)] = op1
                             else:
                                 match = False
                                 break
@@ -69,9 +84,9 @@ class Instruction():
                         continue
                 else:
                     if param != case.params[-1]:
-                        if case.params[p+1] == "<>":
+                        if case.params[p + 1] == "<>":
                             continue
-                    if not Case.match(self.operands[opNum+1], param):
+                    if not Case.match(self.operands[opNum + 1], param):
                         match = False
                         break
                     opNum += 1
@@ -87,6 +102,12 @@ class Instruction():
 
     def toColour(self, indent=0):
         out = Style.BRIGHT
-        out += " "*(indent+1) if not self.labels else f"{Fore.YELLOW}{' '.join(self.labels):>{indent}} {Fore.RESET}"
-        out += f"{Fore.BLUE}{self.opcode} {Style.RESET_ALL}" + " ".join(op.toColour() for op in self.operands)
+        out += (
+            " " * (indent + 1)
+            if not self.labels
+            else f"{Fore.YELLOW}{' '.join(self.labels):>{indent}} {Fore.RESET}"
+        )
+        out += f"{Fore.BLUE}{self.opcode} {Style.RESET_ALL}" + " ".join(
+            op.toColour() for op in self.operands
+        )
         return out

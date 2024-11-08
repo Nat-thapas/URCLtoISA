@@ -2,6 +2,7 @@ from enum import Enum
 from enum import auto
 from colorama import Fore, Back, Style
 
+
 class OpType(Enum):
     REGISTER = auto()
     NUMBER = auto()
@@ -13,46 +14,51 @@ class OpType(Enum):
     STACKPTR = auto()
     OTHER = auto()
 
-class Operand():
+
+class Operand:
     # ======== Static variables ========
 
     # === Get symbol from type ===
     prefixes = {
         OpType.REGISTER: "$",
-        OpType.ADDRESS:  "#",
-        OpType.LABEL:    ".",
-        OpType.PORT:     "%",
+        OpType.ADDRESS: "#",
+        OpType.LABEL: ".",
+        OpType.PORT: "%",
         OpType.RELATIVE: "~",
         OpType.NEGATIVE: "-",
-        OpType.OTHER:    "@",
+        OpType.OTHER: "@",
     }
 
     colours = {
         OpType.REGISTER: Fore.LIGHTCYAN_EX,
-        OpType.ADDRESS:  Fore.GREEN,
-        OpType.LABEL:    Fore.YELLOW,
-        OpType.PORT:     Fore.GREEN,
+        OpType.ADDRESS: Fore.GREEN,
+        OpType.LABEL: Fore.YELLOW,
+        OpType.PORT: Fore.GREEN,
         OpType.RELATIVE: Fore.YELLOW,
         OpType.NEGATIVE: Fore.RESET,
-        OpType.OTHER:    Fore.RED,
+        OpType.OTHER: Fore.RED,
     }
 
     # === Get type from symbol ===
-    reverse_prefixes = dict((v,k) for k,v in prefixes.items())
+    reverse_prefixes = dict((v, k) for k, v in prefixes.items())
 
     # === Define special parsing methods for types ===
     special_types = [
         # If special_types[n][0](operand_string) returns True, then operand_string's type is special_types[n][1]
-        (lambda a: a[0].isnumeric(),                          OpType.NUMBER,   lambda a:a),
-        (lambda a: a[0] == "0" and a[1].isalpha(),            OpType.NUMBER,   lambda a:str(int(a,base=0))),
-        (lambda a: a[0].upper() == "M",                       OpType.ADDRESS,  lambda a:a[1:]),
-        (lambda a: a[0].upper() == "R",                       OpType.REGISTER, lambda a:a[1:]),
-        (lambda a: a == "SP",                                 OpType.STACKPTR, lambda :"SP"),
-        (lambda a: a[0] == "+",                               OpType.NEGATIVE, lambda a: f"-{a}"),
-        (lambda a: a[-1] == "'",                              OpType.NUMBER,   lambda a: str(ord(a[1:-1])))
+        (lambda a: a[0].isnumeric(), OpType.NUMBER, lambda a: a),
+        (
+            lambda a: a[0] == "0" and a[1].isalpha(),
+            OpType.NUMBER,
+            lambda a: str(int(a, base=0)),
+        ),
+        (lambda a: a[0].upper() == "M", OpType.ADDRESS, lambda a: a[1:]),
+        (lambda a: a[0].upper() == "R", OpType.REGISTER, lambda a: a[1:]),
+        (lambda a: a == "SP", OpType.STACKPTR, lambda: "SP"),
+        (lambda a: a[0] == "+", OpType.NEGATIVE, lambda a: f"-{a}"),
+        (lambda a: a[-1] == "'", OpType.NUMBER, lambda a: str(ord(a[1:-1]))),
     ]
 
-    def __init__(self, type=OpType.NUMBER, value="", word=0, extra:dict[str]={}):
+    def __init__(self, type=OpType.NUMBER, value="", word=0, extra: dict[str] = {}):
         # Type: OpType.REGISTER, OpType.ADDRESS, OpType.LABEL, ...
         self.type = type
         self.value = value
@@ -63,8 +69,7 @@ class Operand():
         self.setTypeclass()
 
     def equals(self, other: "Operand"):
-        return (self.type == other.type and self.value == other.value)
-
+        return self.type == other.type and self.value == other.value
 
     # ======== Static methods ========
     @staticmethod
@@ -124,10 +129,12 @@ class Operand():
 
     def toString(self):
         out = f"{self.prefix()}{self.value}"
-        if self.word: out += f"[{self.word}]"
+        if self.word:
+            out += f"[{self.word}]"
         return out
 
     def toColour(self):
         out = f"{Operand.colours.get(self.type, Fore.RESET)}{self.prefix()}{self.value}{Style.RESET_ALL}"
-        if self.word: out += f"[{self.word}]"
+        if self.word:
+            out += f"[{self.word}]"
         return out

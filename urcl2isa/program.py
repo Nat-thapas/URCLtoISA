@@ -6,8 +6,7 @@ from copy import deepcopy
 
 init(autoreset=True)
 
-headers = \
-"""
+headers = """
 BITS
 MINREG
 MINHEAP
@@ -17,8 +16,14 @@ MINSTACK
 
 Header = Enum("Header", " ".join(headers))
 
-class Program():
-    def __init__(self, code:list[Instruction]=[], headers:dict[int, str]={}, regs:list[str]=[]):
+
+class Program:
+    def __init__(
+        self,
+        code: list[Instruction] = [],
+        headers: dict[int, str] = {},
+        regs: list[str] = [],
+    ):
         self.code = code
         self.headers = headers
         self.regs: list[str] = regs
@@ -26,34 +31,33 @@ class Program():
 
     def makeRegsNumeric(self):
         regList = []
-        for i,ins in enumerate(self.code):
-            for o,opr in enumerate(ins.operands):
+        for i, ins in enumerate(self.code):
+            for o, opr in enumerate(ins.operands):
                 if opr.type == OpType.REGISTER and opr.value != "0":
                     if opr.value not in regList:
                         regList.append(opr.value)
-                    self.code[i].operands[o].value = str(1+regList.index(opr.value))
-        for r,reg in enumerate(regList):
-            regList[r] = str(r+1)
+                    self.code[i].operands[o].value = str(1 + regList.index(opr.value))
+        for r, reg in enumerate(regList):
+            regList[r] = str(r + 1)
         self.regs = regList
 
     def primeRegs(self):
-        for r,reg in enumerate(self.regs):
+        for r, reg in enumerate(self.regs):
             if reg != "0":
-                self.rename(reg, reg+"'")
-            self.regs[r] = reg+"'"
-
+                self.rename(reg, reg + "'")
+            self.regs[r] = reg + "'"
 
     def uniqueLabels(self, uid=0):
         labels = {}
         # First pass update definitions
-        for i,ins in enumerate(self.code):
-            for l,label in enumerate(ins.labels):
+        for i, ins in enumerate(self.code):
+            for l, label in enumerate(ins.labels):
                 labels[label] = f"{label}_{uid}"
                 self.code[i].labels[l] = labels[label]
                 uid += 1
         # Second pass update references
-        for i,ins in enumerate(self.code):
-            for o,opr in enumerate(ins.operands):
+        for i, ins in enumerate(self.code):
+            for o, opr in enumerate(ins.operands):
                 if opr.type == OpType.LABEL and labels.get(opr.value) is not None:
                     self.code[i].operands[o].value = labels[opr.value]
         return uid
@@ -65,35 +69,39 @@ class Program():
     def replace(self, program, index=-1, limit=128):
         program = Program.useLessRegisters(self, program, limit)
         labels = self.code[index].labels
-        self.code[index:index+1] = program.code
+        self.code[index : index + 1] = program.code
         self.regs = list(set(self.regs + program.regs))
-        self.code[index].labels += labels            
+        self.code[index].labels += labels
 
     def insert(self, program, index=-1):
         self.code[index:index] = program.code
         self.regs = list(set(self.regs + program.regs))
 
     def rename(self, oldname: str, newname: str, type=OpType.REGISTER):
-        for i,ins in enumerate(self.code):
-            for o,opr in enumerate(ins.operands):
+        for i, ins in enumerate(self.code):
+            for o, opr in enumerate(ins.operands):
                 if opr.type == type and opr.value == oldname:
                     self.code[i].operands[o].value = newname
         if opr.type == OpType.REGISTER:
             self.regs[self.regs.index(oldname)] = newname
 
     def unpackPlaceholders(self):
-        for i,ins in enumerate(self.code):
-            for o,opr in enumerate(ins.operands):
+        for i, ins in enumerate(self.code):
+            for o, opr in enumerate(ins.operands):
                 if opr.type == OpType.OTHER:
                     if opr.value.isalpha() and len(opr.value) == 1:
                         self.code[i].operands[o] = deepcopy(opr.extra[opr.value])
 
     def relativesToLabels(self):
-        for i,ins in enumerate(self.code):
-            for o,opr in enumerate(ins.operands):
+        for i, ins in enumerate(self.code):
+            for o, opr in enumerate(ins.operands):
                 if opr.type == OpType.RELATIVE:
-                    self.code[i + int(opr.value)].labels.append(f"{ins.opcode}_{self.uid}")
-                    self.code[i].operands[o] = Operand.parse(f".{ins.opcode}_{self.uid}")
+                    self.code[i + int(opr.value)].labels.append(
+                        f"{ins.opcode}_{self.uid}"
+                    )
+                    self.code[i].operands[o] = Operand.parse(
+                        f".{ins.opcode}_{self.uid}"
+                    )
                     self.uid += 1
 
     def removeDW(self):
@@ -106,7 +114,9 @@ class Program():
         for i, ins in enumerate(self.code):
             for o, opr in enumerate(ins.operands):
                 if opr.type == OpType.ADDRESS:
-                    self.code[i].operands[o].value += str(int(self.code[i].operands[o].value)+count)
+                    self.code[i].operands[o].value += str(
+                        int(self.code[i].operands[o].value) + count
+                    )
         # Move the values in 'DW's to memory with 'STR's
         insert = []
         count = 0
@@ -132,7 +142,7 @@ class Program():
         done = False
         while not done:
             done = True
-            for l,ins in enumerate(self.code):
+            for l, ins in enumerate(self.code):
                 if superTrans is not None:
                     if superTrans.substitute(ins) is not None:
                         continue
@@ -154,27 +164,32 @@ class Program():
             done = True
             for i, ins in enumerate(self.code):
                 if i > 0:
-                    prins = self.code[i-1]
-                    if prins.opcode in ("PSH", "POP") and \
-                    ins.opcode in ("PSH", "POP") and \
-                    prins.opcode != ins.opcode and \
-                    prins.operands[0].equals(ins.operands[0]):
-                        self.code[i-1].opcode = "NOP"
+                    prins = self.code[i - 1]
+                    if (
+                        prins.opcode in ("PSH", "POP")
+                        and ins.opcode in ("PSH", "POP")
+                        and prins.opcode != ins.opcode
+                        and prins.operands[0].equals(ins.operands[0])
+                    ):
+                        self.code[i - 1].opcode = "NOP"
                         self.code[i].opcode = "NOP"
                         done = False
-                    if prins.opcode in ("STR", "LOD") and \
-                    ins.opcode in ("STR", "LOD") and \
-                    prins.opcode != ins.opcode and \
-                    prins.operands[0].equals(ins.operands[1]) and \
-                    prins.operands[1].equals(ins.operands[0]):
-                        self.code[i-1].opcode = "NOP"
+                    if (
+                        prins.opcode in ("STR", "LOD")
+                        and ins.opcode in ("STR", "LOD")
+                        and prins.opcode != ins.opcode
+                        and prins.operands[0].equals(ins.operands[1])
+                        and prins.operands[1].equals(ins.operands[0])
+                    ):
+                        self.code[i - 1].opcode = "NOP"
                         self.code[i].opcode = "NOP"
                         done = False
             self.code = list(filter(lambda i: i.opcode != "NOP", self.code))
 
     def foldRegisters(self, amount):
         self.makeRegsNumeric()
-        if len(self.regs) <= amount: return
+        if len(self.regs) <= amount:
+            return
         for r in range(amount, len(self.regs)):
             self.code[0:0] = [Instruction.parse(f".R{r+1} DW 0")]
         done = False
@@ -188,14 +203,18 @@ class Program():
                         used.append(opr.value)
                     elif opr.type == OpType.REGISTER and int(opr.value) > amount:
                         work = True
-                if not work: continue
+                if not work:
+                    continue
                 a = list(set(self.regs[:amount]).difference(used))
                 a.sort()
                 head = []
                 tail = []
                 subbed = {}
                 for o, opr in enumerate(ins.operands):
-                    if opr.type == OpType.REGISTER and subbed.get(int(opr.value)) is not None:
+                    if (
+                        opr.type == OpType.REGISTER
+                        and subbed.get(int(opr.value)) is not None
+                    ):
                         self.code[i].operands[o].value = subbed[int(opr.value)]
                         continue
                     if opr.type == OpType.REGISTER and int(opr.value) > amount:
@@ -204,7 +223,8 @@ class Program():
                         for reg in a:
                             found = False
                             for x, subins in enumerate(self.code[i:]):
-                                if found: break
+                                if found:
+                                    break
                                 for y in subins.operands:
                                     if y.type == OpType.REGISTER and y.value == reg:
                                         if x > furthest[0]:
@@ -216,17 +236,20 @@ class Program():
                                 break
                         r = furthest[1]
                         subbed[int(opr.value)] = r
-                        head += [Instruction.parse(x) for x in [
-                            f"PSH R{r}",
-                            f"LOD R{r} .R{opr.value}",
-                        ]]
-                        tail += [Instruction.parse(x) for x in [
-                            f"STR .R{opr.value} R{r}",
-                            f"POP R{r}"
-                        ]]
+                        head += [
+                            Instruction.parse(x)
+                            for x in [
+                                f"PSH R{r}",
+                                f"LOD R{r} .R{opr.value}",
+                            ]
+                        ]
+                        tail += [
+                            Instruction.parse(x)
+                            for x in [f"STR .R{opr.value} R{r}", f"POP R{r}"]
+                        ]
                         self.code[i].operands[o].value = f"{r}"
                 if not done:
-                    self.code[i+1:i+1] = tail
+                    self.code[i + 1 : i + 1] = tail
                     lab = ins.labels
                     self.code[i].labels = []
                     self.code[i:i] = head
@@ -235,15 +258,15 @@ class Program():
 
     @staticmethod
     def useLessRegisters(mainProg: "Program", insert: "Program", amount=128):
-        """ This is for when you are merging a subprogram into a main program.
-            This is not to simply reduce the number of registers used in a
-            standalone program. """
+        """This is for when you are merging a subprogram into a main program.
+        This is not to simply reduce the number of registers used in a
+        standalone program."""
         totalregs = list(set(mainProg.regs + insert.regs))
         if len(totalregs) > amount:
             head = []
             tail = []
-            reuse = mainProg.regs[:len(totalregs)-amount]
-            for r,reg in enumerate(reuse):
+            reuse = mainProg.regs[: len(totalregs) - amount]
+            for r, reg in enumerate(reuse):
                 head.append(Instruction("PSH", [Operand(OpType.REGISTER, value=reg)]))
                 tail[0:0] = [Instruction("POP", [Operand(OpType.REGISTER, value=reg)])]
                 old = insert.regs[-1]
@@ -260,10 +283,9 @@ class Program():
             lines = [l.strip() for l in f]
         return lines
 
-
     @staticmethod
     # The program is a list of strings
-    def parse(program: list[str], wordSize: int=8):
+    def parse(program: list[str], wordSize: int = 8):
         headers: dict[int, str] = {}
         code: list[Instruction] = []
         regs: list[str] = []
@@ -271,7 +293,7 @@ class Program():
         defineO: list[str] = []
         skip = False
 
-        for l,line in enumerate(program):
+        for l, line in enumerate(program):
             if "*/" in line:
                 skip = False
                 continue
@@ -281,19 +303,19 @@ class Program():
                 skip = True
                 continue
             while "  " in line:
-                line = line.replace("  "," ")
+                line = line.replace("  ", " ")
             line = line.split("//")[0]
             ls = line.split()
 
-            if(len(ls) > 1):
-                if (ls[0] == "@PRAGMA"):
+            if len(ls) > 1:
+                if ls[0] == "@PRAGMA":
                     continue
-                if (ls[0] == "@INCLUDE"):
+                if ls[0] == "@INCLUDE":
                     ret = program[0:l]
-                    fname = " ".join(ls[1:]).strip("\"")
+                    fname = " ".join(ls[1:]).strip('"')
                     print(f"Including file {fname}")
                     ret.extend(Program.include(fname))
-                    ret.extend(program[l+1:])
+                    ret.extend(program[l + 1 :])
                     return Program.parse(ret)
 
             if len(ls) >= 3:
@@ -303,9 +325,9 @@ class Program():
                     defineI.append(old)
                     defineO.append(new)
                     continue
-            
-            for t,token in enumerate(ls):
-                for m,match in enumerate(defineI):
+
+            for t, token in enumerate(ls):
+                for m, match in enumerate(defineI):
                     if token == match:
                         ls[t] = defineO[m]
             line = " ".join(ls)
@@ -322,24 +344,24 @@ class Program():
                     if code[-1].labels is not None:
                         ins.labels += code[-1].labels
                     code = code[:-1]
-            for o,operand in enumerate(ins.operands):
+            for o, operand in enumerate(ins.operands):
                 if operand.type == OpType.REGISTER:
                     if operand.value not in regs and operand.value != "0":
                         regs.append(operand.value)
                 if operand.type == OpType.OTHER:
                     v = operand.value
                     if v == "MAX":
-                        v = 2**(wordSize)-1
+                        v = 2 ** (wordSize) - 1
                     elif v == "SMAX":
-                        v = 2**(wordSize)-1 - 2**(wordSize-1)
+                        v = 2 ** (wordSize) - 1 - 2 ** (wordSize - 1)
                     elif v == "MSB":
-                        v = 2**(wordSize-1)
+                        v = 2 ** (wordSize - 1)
                     elif v == "SMSB":
-                        v = 2**(wordSize-2)
+                        v = 2 ** (wordSize - 2)
                     elif v == "UHALF":
-                        v = 2**(wordSize) - 2**(wordSize/2)
+                        v = 2 ** (wordSize) - 2 ** (wordSize / 2)
                     elif v == "LHALF":
-                        v = 2**(wordSize/2)-1
+                        v = 2 ** (wordSize / 2) - 1
                     elif v == "BITS":
                         v = wordSize
                     else:
@@ -350,7 +372,7 @@ class Program():
         return Program(code, headers, regs)
 
     @staticmethod
-    def parseFile(filename: str, wordSize: int=8):
+    def parseFile(filename: str, wordSize: int = 8):
         with open(filename, "r", encoding="utf-8") as f:
             lines = [l.strip() for l in f]
         return Program.parse(lines, wordSize)
@@ -367,6 +389,6 @@ class Program():
 
     def toString(self, indent=0):
         return "\n".join(l.toString(indent=indent) for l in self.code)
-    
+
     def toColour(self, indent=0):
         return "\n".join(l.toColour(indent=indent) for l in self.code)
