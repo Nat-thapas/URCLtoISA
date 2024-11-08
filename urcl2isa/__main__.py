@@ -35,7 +35,7 @@ def main():
 
     start = timer()
 
-    main = Program.parseFile(filename)
+    main = Program.parseFile(filename, wordSize)
 
     minreg = len(main.regs)
     if argv.Minreg:

@@ -257,7 +257,7 @@ DIV :: R A A != {
     SUB R1 R1 @C
     BGE ~-2 R1 @C
     JMP ~+2
-    IMM @A R0
+    IMM @A 0
 }
 DIV :: R A A {
     BRL ~+9 @B @C
@@ -271,7 +271,18 @@ DIV :: R A A {
     MOV @A R0
 }
 SDIV :: R A A {
-    NOP
+    IMM R1 0
+    MOV R2 @B
+    BRP ~+3 @B
+    NEG R2 @B
+    IMM R1 @MSB
+    MOV R3 @C
+    BRP ~+3 @C
+    NEG R3 @C
+    ADD R1 R1 @MSB
+    DIV @A R2 R3
+    BRP ~+2 @A
+    NEG @A @A
 }
 MOD :: R A A != {
     MOV @A @B
@@ -318,16 +329,40 @@ BSS :: R A A {
     JMP ~-3
 }
 SBRL :: A A A {
-    NOP
+    MOV R1 @B
+    BRP ~+2 @B
+    ADD R1 @B @MSB
+    MOV R2 @C
+    BRP ~+2 @C
+    ADD R2 @C @MSB
+    BRL @A R1 R2
 }
 SBRG :: A A A {
-    NOP
+    MOV R1 @B
+    BRP ~+2 @B
+    ADD R1 @B @MSB
+    MOV R2 @C
+    BRP ~+2 @C
+    ADD R2 @C @MSB
+    BRG @A R1 R2
 }
 SBLE :: A A A {
-    NOP
+    MOV R1 @B
+    BRP ~+2 @B
+    ADD R1 @B @MSB
+    MOV R2 @C
+    BRP ~+2 @C
+    ADD R2 @C @MSB
+    BLE @A R1 R2
 }
 SBGE :: A A A {
-    NOP
+    MOV R1 @B
+    BRP ~+2 @B
+    ADD R1 @B @MSB
+    MOV R2 @C
+    BRP ~+2 @C
+    ADD R2 @C @MSB
+    BGE @A R1 R2
 }
 SETE :: R A A {
     IMM @A 1
@@ -374,14 +409,43 @@ SETNC :: R A A {
     SETGE @A @A R1
 }
 SSETG :: R A A {
-    NOP
+    MOV R1 @B
+    BRP ~+2 @B
+    ADD R1 @B @MSB
+    MOV R2 @C
+    BRP ~+2 @C
+    ADD R2 @C @MSB
+    SETG @A R1 R2
 }
 SSETL :: R A A {
-    NOP
+    MOV R1 @B
+    BRP ~+2 @B
+    ADD R1 @B @MSB
+    MOV R2 @C
+    BRP ~+2 @C
+    ADD R2 @C @MSB
+    SETL @A R1 R2
 }
 SSETGE :: R A A {
-    NOP
+    MOV R1 @B
+    BRP ~+2 @B
+    ADD R1 @B @MSB
+    MOV R2 @C
+    BRP ~+2 @C
+    ADD R2 @C @MSB
+    SETGE @A R1 R2
 }
 SSETLE :: R A A {
-    NOP
+    MOV R1 @B
+    BRP ~+2 @B
+    ADD R1 @B @MSB
+    MOV R2 @C
+    BRP ~+2 @C
+    ADD R2 @C @MSB
+    SETLE @A R1 R2
+}
+ABS :: R A {
+    MOV @A @B
+    BRP ~+2 @A
+    NEG @A @A
 }

@@ -1,17 +1,19 @@
-┌──────────────────────────────────────────────────────────────────┐
-| A space for you to define your own URCL instructions.            |
-|                                                                  |
-| An example is given here, try using it in a URCL program!        |
-| (Notice that it takes no arguments, just like HLT or RET)        |
-└──────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────┐
+| A space for you to define your own URCL instructions. |
+└───────────────────────────────────────────────────────┘
 
-HAKU :: {
-    .h
-    DW 'H'
-    .a
-    DW 'A'
-    .k
-    DW 'K'
-    .u
-    DW 'U'
+STL A :: {
+    STL @A
+}
+
+SMLT R A A :: {
+    SMLT @A @B @C
+}
+
+UMLT :: R A A {
+    UMUL @A @B @C
+}
+
+SUMLT :: R A A {
+    SUMUL @A @B @C
 }

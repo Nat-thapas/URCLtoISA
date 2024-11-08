@@ -45,7 +45,7 @@ class Instruction():
         for case in translation.cases:
             backup = self.operands
             match = True
-            opNum = 0
+            opNum = -1
             infixes = ["==", "~~", "<>", "!=", "!~"]
             for p,param in enumerate(case.params):
                 if param in infixes:
@@ -71,7 +71,7 @@ class Instruction():
                     if param != case.params[-1]:
                         if case.params[p+1] == "<>":
                             continue
-                    if not Case.match(self.operands[opNum], param):
+                    if not Case.match(self.operands[opNum+1], param):
                         match = False
                         break
                     opNum += 1

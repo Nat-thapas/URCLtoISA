@@ -106,7 +106,7 @@ class Program():
         for i, ins in enumerate(self.code):
             for o, opr in enumerate(ins.operands):
                 if opr.type == OpType.ADDRESS:
-                    self.code[i].operands[o].value += count
+                    self.code[i].operands[o].value += str(int(self.code[i].operands[o].value)+count)
         # Move the values in 'DW's to memory with 'STR's
         insert = []
         count = 0
@@ -322,10 +322,10 @@ class Program():
         return Program(code, headers, regs)
 
     @staticmethod
-    def parseFile(filename: str):
+    def parseFile(filename: str, wordSize: int=8):
         with open(filename, "r") as f:
             lines = [l.strip() for l in f]
-        return Program.parse(lines)
+        return Program.parse(lines, wordSize)
 
     @staticmethod
     def parseHeader(line: str):

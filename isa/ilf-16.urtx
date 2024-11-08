@@ -1,0 +1,261 @@
+NOP :: {
+    NOP
+}
+
+HLT :: {
+    HLT
+}
+
+ADD :: R A A {
+    ADD @A @B @C
+}
+
+SUB :: R A A {
+    SUB @A @B @C
+}
+
+RSH :: R A {
+    RSHIFT @A @B 1
+}
+
+LSH :: R A {
+    LSHIFT @A @B 1
+}
+
+BSR :: R A A {
+    RSHIFT @A @B @C
+}
+
+BSL :: R A A {
+    LSHIFT @A @B @C
+}
+
+MLT :: R A A {
+    MUL @A @B @C
+}
+
+SMLT :: R A A {
+    SMUL @A @B @C
+}
+
+UMLT :: R A A {
+    UMUL @A @B @C
+}
+
+SUMLT :: R A A {
+    SUMUL @A @B @C
+}
+
+NOT :: R A {
+    NOT @A @B
+}
+
+AND :: R A A {
+    AND @A @B @C
+}
+
+OR :: R A A {
+    OR @A @B @C
+}
+
+XOR :: R A A {
+    XOR @A @B @C
+}
+
+NAND :: R A A {
+    NAND @A @B @C
+}
+
+NOR :: R A A {
+    NOR @A @B @C
+}
+
+XNOR :: R A A {
+    XNOR @A @B @C
+}
+
+NEG :: R A {
+    SUB @A 0 @B
+}
+
+JMP :: A {
+    BRN @A
+}
+
+BRL :: A A A {
+    ADD $0 @B @C
+    BLT @A
+}
+
+BRG :: A A A {
+    ADD $0 @B @C
+    BGT @A
+}
+
+BRE :: A A A {
+    ADD $0 @B @C
+    BEQ @A
+}
+
+BNE :: A A A {
+    ADD $0 @B @C
+    BNEQ @A
+}
+
+BOD :: A A {
+    PASS $0 @B
+    BOD @A
+}
+
+BEV :: A A {
+    PASS $0 @B
+    BEN @A
+}
+
+BLE :: A A A {
+    ADD $0 @B @C
+    BLT @A
+}
+
+BGE :: A A A {
+    ADD $0 @B @C
+    BGT @A
+}
+
+BRZ :: A A {
+    PASS $0 @B
+    BZ @A
+}
+
+BNZ :: A A {
+    PASS $0 @B
+    BNZ @A
+}
+
+BRN :: A A {
+    PASS $0 @B
+    BNEG @A
+}
+
+BRP :: A A {
+    PASS $0 @B
+    BPOS @A
+}
+
+BRC :: A A A {
+    ADD $0 @B @C
+    BC @A
+}
+
+BNC :: A A A {
+    ADD $0 @B @C
+    BNC @A
+}
+
+SBRL :: A A A {
+    ADD $0 @B @C
+    BSLT @A
+}
+
+SBRG :: A A A {
+    ADD $0 @B @C
+    BSGT @A
+}
+
+IMM :: R A {
+    LDI @A @B
+}
+
+MOV :: R A {
+    MOV @A @B
+}
+
+SBLE :: A A A {
+    ADD $0 @B @C
+    BSLE @A
+}
+
+SBGE :: A A A {
+    ADD $0 @B @C
+    BSGE @A
+}
+
+SETE :: R A A {
+    ADD $0 @B @C
+    SEQ @A 0xFFFF
+}
+
+SETNE :: R A A {
+    ADD $0 @B @C
+    SNEQ @A 0xFFFF
+}
+
+SETG :: R A A {
+    ADD $0 @B @C
+    SGT @A 0xFFFF
+}
+
+SETL :: R A A {
+    ADD $0 @B @C
+    SLT @A 0xFFFF
+}
+
+SETGE :: R A A {
+    ADD $0 @B @C
+    SGE @A 0xFFFF
+}
+
+SETLE :: R A A {
+    ADD $0 @B @C
+    SLE @A 0xFFFF
+}
+
+SETC :: R A A {
+    ADD $0 @B @C
+    SC @A 0xFFFF
+}
+
+SETNC :: R A A {
+    ADD $0 @B @C
+    SNC @A 0xFFFF
+}
+
+SSETL :: R A A {
+    ADD $0 @B @C
+    SSLT @A 0xFFFF
+}
+
+SSETG :: R A A {
+    ADD $0 @B @C
+    SSGT @A 0xFFFF
+}
+
+SSETLE :: R A A {
+    ADD $0 @B @C
+    SSLE @A 0xFFFF
+}
+
+SSETGE :: R A A {
+    ADD $0 @B @C
+    SSGE @A 0xFFFF
+}
+
+LOD :: R A {
+    LOD @A @B
+}
+
+STR :: A R {
+    STR @B @A
+}
+
+IN :: R O {
+    IN @A @B
+}
+
+OUT :: O R {
+    OUT @B @A
+}
+
+DW :: I {
+    DW @A
+}
