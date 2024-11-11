@@ -1,3 +1,5 @@
+import re
+
 from operand import Operand, OpType
 from instruction import Instruction
 from enum import Enum
@@ -114,7 +116,7 @@ class Program:
         for i, ins in enumerate(self.code):
             for o, opr in enumerate(ins.operands):
                 if opr.type == OpType.ADDRESS:
-                    self.code[i].operands[o].value += str(
+                    self.code[i].operands[o].value = str(
                         int(self.code[i].operands[o].value) + count
                     )
         # Move the values in 'DW's to memory with 'STR's
@@ -373,8 +375,21 @@ class Program:
 
     @staticmethod
     def parseFile(filename: str, wordSize: int = 8):
+        lines = []
         with open(filename, "r", encoding="utf-8") as f:
-            lines = [l.strip() for l in f]
+            # lines = [l.strip() for l in f]
+            for l in f:
+                l = l.strip()
+                l = re.sub(r"  +", " ", l)
+                if not l:
+                    continue
+                dw_match = re.match(r"DW\s+\[(.*?)\]", l, re.IGNORECASE)
+                if dw_match:
+                    for dw in dw_match.group(1).split():
+                        if dw:
+                            lines.append(f"DW {dw}")
+                else:
+                    lines.append(l)
         return Program.parse(lines, wordSize)
 
     @staticmethod

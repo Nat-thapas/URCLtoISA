@@ -256,6 +256,22 @@ OUT :: O R {
     OUT @B @A
 }
 
+PSH :: A {
+    PSH @A
+}
+
+POP :: R {
+    POP @A
+}
+
+CAL :: A {
+    CAL @A
+}
+
+RET :: {
+    RET
+}
+
 DW :: I {
     DW @A
 }
